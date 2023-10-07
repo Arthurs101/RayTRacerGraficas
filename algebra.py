@@ -1,3 +1,4 @@
+epsilon = 1e-10
 def cros_vec(vector1, vector2):
     if len(vector1) != 3 or len(vector2) != 3:
         raise ValueError("Los vectores deben tener tres componentes.")

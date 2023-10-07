@@ -1,5 +1,6 @@
+from algebra import *
 import algebra
-
+from figures import Intercept
 from math import acos,asin
 
 def reflectVector(normal,direction):
@@ -85,8 +86,8 @@ class DirectionalLight(Light):
         dir = [(i*-1) for i in self.direction]
         
         intensity = algebra.dot_vec(intercept.normal,dir)*self.intensity
-        intensity = max(0,min(1,intensity))
         intensity *= 1-intercept.obj.material.Ks
+        intensity = max(0,min(1,intensity))
         diffuseColor = [(i*intensity) for i in self.color]
         
         return diffuseColor
@@ -112,45 +113,18 @@ class PointLight(Light):
         self.point = point
         super().__init__(intensity, color, "Point")
         
-    def getDiffuseColor(self, intercept):
-        dir = algebra.sub_vec(self.point,intercept.point)
-        R = algebra.get_magnitude(dir)
-        dir = algebra.div_veck(dir,R)
-        
-        intensity = algebra.dot_vec(intercept.normal,dir)*self.intensity
-        intensity *= 1-intercept.obj.material.Ks
-        
-        #Ley de cuadrados inversos
-        # IF = Intensity/R^2
-        #R es la distancia del punto intercepto a la luz punto
-        if R!=0:
-            intensity /= R**2
-        
-        intensity = max(0,min(1,intensity))
-
-        diffuseColor = [(i*intensity) for i in self.color]
-        
-        return diffuseColor
+    def getDiffuseColor(self, intercept:Intercept):
+        light_direction = algebra.normalize_vec(algebra.sub_vec(self.point, intercept.point))
+        diffuse_intensity = max(dot_vec(intercept.normal, light_direction), 0.0)
+        diffuse_color = [max(diffuse_intensity* color,1.0) for color in self.color]
+        return diffuse_color
     
-    def getSpecularColor(self, intercept, viewPos):
-        dir = algebra.sub_vec(self.point,intercept.point)
-        R = algebra.get_magnitude(dir)
-        dir = algebra.div_veck(dir,R)
-        
-        reflect = reflectVector(intercept.normal,dir)
-        
-        viewDir = algebra.sub_vec(viewPos,intercept.point)
-        viewDir = algebra.normalize_vec(viewDir)
-        
-        specIntensity = max(0,algebra.dot_vec(viewDir,reflect))**intercept.obj.material.spec
-        specIntensity *= intercept.obj.material.Ks
-        specIntensity *= self.intensity
-        
-        if R!=0:
-            specIntensity /= R**2
-        
-        specIntensity = max(0,min(1,specIntensity))
-        
-        specColor = [(i*specIntensity) for i in self.color]
-        
-        return specColor
+    def getSpecularColor(self, intercept:Intercept, viewPos):
+        light_direction = algebra.normalize_vec(sub_vec(self.position, intercept.point))
+        view_direction = algebra.normalize_vec(sub_vec(viewPos, intercept.point))
+        reflected_light_direction = reflectVector(light_direction, algebra.normalize_vec(intercept.normal))
+
+        specular_intensity = max(dot_vec(reflected_light_direction, view_direction), 0.0) ** intercept.obj.material.Ks
+        specular_color = [max(specular_intensity * self.intensity* color,1.0) for color in self.color]
+
+        return specular_color
