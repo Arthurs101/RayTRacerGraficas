@@ -19,20 +19,13 @@ raytracer = RayTracer(screen)
 raytracer.envMap = pygame.image.load("textures/sword.bmp")
 
 raytracer.lights.append(AmbientLight(color=(1,1,1),intensity=0.2))
-raytracer.lights.append(DirectionalLight(direction=(1,0,0),intensity=0.5,color=(1,1,1)))
-raytracer.lights.append(DirectionalLight(direction=(-1,0,0),intensity=0.5,color=(1,1,1)))
-raytracer.lights.append(DirectionalLight(direction=(0,0,1),intensity=0.5,color=(1,1,1)))
-raytracer.lights.append(DirectionalLight(direction=(0,1,0),intensity=0.5,color=(1,1,1)))
-raytracer.scene.append(Plane(position=(-3,0,-9),normal=(-1,0,0),material=wall))
-raytracer.scene.append(Plane(position=(3,0,-9),normal=(1,0,0),material=wall))
-raytracer.scene.append(Plane(position=(0,0,-9),normal=(0,0,1),material=wall))
-raytracer.scene.append(Plane(position=(0,3,-9),normal=(0,1,0),material=wall))
-raytracer.scene.append(Plane(position=(0,-3,-9),normal=(0,-1,0),material=floor))
+raytracer.lights.append(DirectionalLight(direction=(-1,-1,-1),intensity=0.5,color=(1,1,1)))
 
-raytracer.scene.append(Disc((0, -1, -7),(0,1,0),3,material=diamond))
-raytracer.scene.append(Cube((1, -2, -7), (1, 1, 1), material=earth))
-raytracer.scene.append(Cube((-1, -2, -7), (1, 1, 1), material=fire))
+raytracer.scene.append(Sphere((-0.1,1,-7),1,earth))
+raytracer.scene.append(Triangle(material=diamond,vertices=[(-0.2,0.2,-5),(0.2,0.2,-5),(0.0,0.4,-5)]))
 
+raytracer.scene.append(Triangle(material=grass,vertices=[(-0.2,-0.2,-5),(0.2,-0.2,-5),(0.0,-0.4,-5)]))
+raytracer.scene.append(Triangle(material=grass,vertices=[(-1,-2,-6),(1,-2,-6),(0.0,0,-5)]))
 
 
 raytracer.rtClear()
