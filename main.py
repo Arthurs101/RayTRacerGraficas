@@ -6,8 +6,8 @@ from figures import *
 from lights import *
 from materials import *
 from constants import *
-
-width = 500
+from obj import *
+width = 400
 height = 400
 
 pygame.init()
@@ -16,17 +16,24 @@ screen = pygame.display.set_mode((width,height),pygame.DOUBLEBUF|pygame.HWACCEL|
 screen.set_alpha(None)
 
 raytracer = RayTracer(screen)
-raytracer.envMap = pygame.image.load("textures/sword.bmp")
-
-raytracer.lights.append(AmbientLight(color=(1,1,1),intensity=0.2))
-raytracer.lights.append(DirectionalLight(direction=(-1,-1,-1),intensity=0.5,color=(1,1,1)))
-
-raytracer.scene.append(Sphere((-0.1,1,-7),1,earth))
-raytracer.scene.append(Triangle(material=diamond,vertices=[(-0.2,0.2,-5),(0.2,0.2,-5),(0.0,0.4,-5)]))
-
-raytracer.scene.append(Triangle(material=grass,vertices=[(-0.2,-0.2,-5),(0.2,-0.2,-5),(0.0,-0.4,-5)]))
-raytracer.scene.append(Triangle(material=grass,vertices=[(-1,-2,-6),(1,-2,-6),(0.0,0,-5)]))
-
+raytracer.envMap = pygame.image.load("textures/hell.bmp")
+vpWith= raytracer.envMap.get_width()
+vpHeigt= raytracer.envMap.get_height()
+raytracer.lights.append(AmbientLight(color=(1,1,1),intensity=0.1))
+raytracer.lights.append(DirectionalLight(direction=(0,0,-1),intensity=0.3,color=(1,1,1)))
+raytracer.lights.append(DirectionalLight(direction=(-1,-1,-1),intensity=0.4,color=(1,1,0)))
+raytracer.lights.append(DirectionalLight(direction=(1,-1,-1),intensity=0.4,color=(1,0,0)))
+raytracer.lights.append(DirectionalLight(direction=(0,-1,0),intensity=0.4,color=(1,0,0)))
+raytracer.lights.append(PointLight(point=(0,0,-7),intensity=500,color=(0,0,1)))
+raytracer.camPosition = [0,0,3]
+hex = Obj3D('skull_low.obj',material=SAPHIRE,scale=(0.2,0.2,0.2),translate=(0,0,-10))
+raytracer.scene.append(hex)
+raytracer.scene.append(Cube(position=(0,-6,-8),size=(8,4,4),material=Hard_ROCK))
+raytracer.scene.append(Cube(position=(0,-4,-10),size=(1,4,1),material=GOLD))
+raytracer.scene.append(Sphere(material=earth,position=(-4,0,-7),radius=1))
+raytracer.scene.append(Sphere(material=diamond,position=(-2,4,-7),radius=1))
+raytracer.scene.append(Sphere(material=fire,position=(4,0,-7),radius=1))
+raytracer.scene.append(Sphere(material=mirror,position=(2,4,-7),radius=1))
 
 raytracer.rtClear()
 raytracer.rtRender()
@@ -44,6 +51,6 @@ while isRunning:
 
 rect = pygame.Rect(0,0,width,height)
 sub = screen.subsurface(rect)
-pygame.image.save(sub,"Render_outuput.jpg")
+pygame.image.save(sub,"temple_skull_3.jpg")
 
 pygame.quit()

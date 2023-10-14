@@ -12,7 +12,6 @@ def cros_vec(vector1, vector2):
 
     return (cros_vec_x, cros_vec_y, cros_vec_z)
 
-
 def sub_vec(array1, array2):
     if len(array1) != len(array2):
         raise ValueError("Los arrays deben tener la misma longitud.")
@@ -40,6 +39,16 @@ def mul_vec(array1, array2):
     result = []
     for i in range(len(array1)):
         result.append(array1[i] * array2[i])
+
+    return tuple(result)
+
+def div_vec(array1, array2):
+    if len(array1) != len(array2):
+        raise ValueError("Los arrays deben tener la misma longitud.")
+
+    result = []
+    for i in range(len(array1)):
+        result.append(array1[i] /array2[i])
 
     return tuple(result)
 
@@ -71,7 +80,6 @@ def normalize_vec(vector):
 
     return tuple(vector_normalizado)
 
-
 def dot_vec(vector1, vector2):
     if len(vector1) != len(vector2):
         raise ValueError("Los vectores deben tener la misma longitud")
@@ -85,3 +93,94 @@ def negate_vec(vector):
         vector[i] *= -1
         
     return vector
+
+def multiplicar_matrices(matriz1, matriz2):
+    filas_matriz1 = len(matriz1)
+    columnas_matriz1 = len(matriz1[0])
+    filas_matriz2 = len(matriz2)
+    columnas_matriz2 = len(matriz2[0])
+
+    # Verificar si las matrices se pueden multiplicar
+    if columnas_matriz1 != filas_matriz2:
+        print("No se pueden multiplicar las matrices.")
+        return None
+
+    # Crear una matriz de resultado con las dimensiones adecuadas
+    matriz_resultado = [[0 for y in range(columnas_matriz2)] for x in range(filas_matriz1)]
+
+    # Realizar la multiplicación de matrices
+    for i in range(filas_matriz1):
+        for j in range(columnas_matriz2):
+            for k in range(columnas_matriz1):
+                matriz_resultado[i][j] += matriz1[i][k] * matriz2[k][j]
+
+    return matriz_resultado
+
+def multiplicar_matriz_vector(matriz,vector):
+    filas_matriz = len(matriz)
+    columnas_matriz = len(matriz[0])
+    filas_vector = len(vector)
+
+    # Verificar si las matrices se pueden multiplicar
+    if columnas_matriz!= filas_vector:
+        print("No se puede multiplicar la matriz por el vector.")
+        return None
+
+    # Crear un vector de resultado con las dimensiones adecuadas
+    vector_resultado = [0 for x in range(filas_matriz)]
+
+    # Realizar la multiplicación matriz-vector
+    for i in range(filas_matriz):
+        for k in range(columnas_matriz):
+            vector_resultado[i] += matriz[i][k] * vector[k]
+
+    return vector_resultado
+
+def matriz_transpuesta(matriz):
+    return [[matriz[j][i] for j in range(len(matriz))] for i in range(len(matriz[0]))]
+
+def matriz_adjunta(matriz):
+    adjunta = []
+    for i in range(len(matriz)):
+        fila_adjunta = []
+        for j in range(len(matriz)):
+            submatriz = [fila[:j] + fila[j+1:] for fila in (matriz[:i]+matriz[i+1:])]
+            cofactor = ((-1)**(i+j)) * determinante(submatriz)
+            fila_adjunta.append(cofactor)
+        adjunta.append(fila_adjunta)
+    return matriz_transpuesta(adjunta)
+
+def determinante(matriz):
+    if len(matriz) == 2:
+        return matriz[0][0] * matriz[1][1] - matriz[0][1] * matriz[1][0]
+    det = 0
+    for i in range(len(matriz)):
+        submatriz = [fila[1:] for fila in matriz[:i] + matriz[i+1:]]
+        det += ((-1)**i) * matriz[i][0] * determinante(submatriz)
+    return det
+
+def matriz_inversa(matriz):
+    det = determinante(matriz)
+    if det == 0:
+        raise ValueError("La matriz no tiene inversa.")
+    adjunta = matriz_adjunta(matriz)
+    inversa = [[adjunta[i][j] / det for j in range(len(adjunta))] for i in range(len(adjunta))]
+    return inversa
+
+def barycentric_coords(A, B, C, P):
+    areaABC = abs((A[0] * B[1] + B[0] * C[1] + C[0] * A[1]) - (A[1] * B[0] + B[1] * C[0] + C[1] * A[0]))
+    if areaABC == 0:
+        return [0, 0, 0]
+
+    areaPCB = abs((P[0] * C[1] + C[0] * B[1] + B[0] * P[1]) - (P[1] * C[0] + C[1] * B[0] + B[1] * P[0]))
+    areaACP = abs((A[0] * C[1] + C[0] * P[1] + P[0] * A[1]) - (A[1] * C[0] + C[1] * P[0] + P[1] * A[0]))
+    areaABP = abs((A[0] * B[1] + B[0] * P[1] + P[0] * A[1]) - (A[1] * B[0] + B[1] * P[0] + P[1] * A[0]))
+
+    u = areaPCB / areaABC
+    v = areaACP / areaABC
+    w = areaABP / areaABC
+
+    if 0 <= u <= 1 and 0 <= v <= 1 and 0 <= w <= 1 and abs(u + v + w - 1.0) < 1e-6:
+        return [u, v, w]
+    else:
+        return [-1, -1, -1]

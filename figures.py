@@ -57,63 +57,55 @@ class Sphere(Shape):
     
 
 class Triangle(Shape):
-    def __init__(self,material,vertices):
+    def __init__(self,material,vertices,txt):
         self.A = vertices[0]
         self.B = vertices[1]
         self.C = vertices[2]
+        self.txt = txt
         super().__init__((-1,-1,1),material)
+ 
     def ray_intersect(self,orig,dir):
-        #determinar la normal del triangulo
-        AB = sub_vec(self.A,self.B)
-        AC = sub_vec(self.A,self.C)
-        #Normal
-        N = cros_vec(AB,AC)
-        A2 = get_magnitude(N)
-        Ndirdot = dot_vec(N,dir)
-        
-        if abs(Ndirdot) < epsilon:
+        e1 = sub_vec(self.B, self.A)
+        e2 = sub_vec(self.C, self.A)
+        h = cros_vec(dir, e2)
+        a = dot_vec(e1, h)
+        # Bias
+        if abs(a) < 0.00001:
             return None
         
-        d:float = - dot_vec(N,self.A)
-        t:float = -((dot_vec(N,orig)) + d)/Ndirdot
+        f = 1 / a
+        s = sub_vec(orig, self.A)
+        u = f * dot_vec(s, h)
 
-        #not visible 
-        if t < 0:  return None
-
-        P = add_vec(dir,mul_veck(t,orig))
-
-        #edge 0
-        edge0 = sub_vec(self.B,self.A) 
-        vp0 = sub_vec(P,self.A)
-
-        #vector perpendicular to the normal
-        PN = cros_vec(edge0,vp0)
-        if dot_vec(N,PN) < 0:
+        if u < 0.0 or u > 1.0:
             return None
-        
-        #edge 1
-        edge1 = sub_vec(self.C,self.B) 
-        vp1 = sub_vec(P,self.B)
 
-        #vector perpendicular to the normal
-        PN = cros_vec(edge1,vp1)
-        if dot_vec(N,PN) < 0:
-            return None
-        
-        #edge 2
-        edge2 = sub_vec(self.A,self.C) 
-        vp2 = sub_vec(P,self.C)
+        q = cros_vec(s, e1)
+        v = f * dot_vec(dir, q)
 
-        #vector perpendicular to the normal
-        PN = cros_vec(edge2,vp2)
-        if dot_vec(N,PN) < 0:
+        if v < 0.0 or u + v > 1.0:
             return None
-        
-        return Intercept(distance=t,
-                         point=P,
-                         normal=N,
-                         texcoords=(1,1),
-                         obj=self)
+
+        t = f * dot_vec(e2, q)
+
+        if t > 0.00001:
+            intersect_point = add_vec(orig, mul_veck(t, dir))
+
+            edge1 = sub_vec(self.B, self.A)
+            edge2 = sub_vec(self.C, self.B)
+            normal = cros_vec(edge1, edge2)
+            normal = normalize_vec(normal)
+            txtCoords = None
+            if(self.txt):
+                bc = barycentric_coords(self.A,self.B,self.C,intersect_point)
+                if bc[0] >= 0 and bc[0] <= 1 and bc[1] >= 0 and bc[1] <= 1 and bc[2] >= 0 and bc[2] <= 1:
+                    #vertex A texture coordinates
+                    Tu =  bc[0] * self.txt[0][0] +  bc[1] * self.txt[1][0]  + bc[2] * self.txt[2][0] 
+                    Tv =  bc[0] * self.txt[0][1] +  bc[1] * self.txt[1][1]  + bc[2] * self.txt[2][1]
+                    txtCoords = (Tu,Tv)
+            return Intercept(distance=t, point=intersect_point, normal=normal, texcoords=txtCoords, obj=self)
+
+        return None
     
 class Plane(Shape):
     def __init__(self,position,normal,material):

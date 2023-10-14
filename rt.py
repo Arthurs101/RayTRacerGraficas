@@ -6,7 +6,7 @@ import random
 
 from materials import *
 from lights import reflectVector, refractVector, totalInternalReflection, fresnel
-
+from obj import Obj3D
 MAX_RECURSION_DEPTH = 3
 
 class RayTracer(object):
@@ -73,22 +73,34 @@ class RayTracer(object):
 
         for obj in self.scene:
             if sceneObj != obj:
-                intercept = obj.ray_intersect(orig,dir)
-                if intercept!=None:
-                    if intercept.distance<depth:
-                        hit = intercept
-                        depth = intercept.distance
+                if isinstance(obj,Obj3D):
+                    if obj.isInsideBox(dir,orig):
+                        for triangle in obj.TOBjects:
+                            if sceneObj != triangle:
+                                intercept = triangle.ray_intersect(orig,dir)
+                                if intercept!=None:
+                                    if intercept.distance<depth:
+                                        hit = intercept
+                                        depth = intercept.distance
+                else:
+                    intercept = obj.ray_intersect(orig,dir)
+                    if intercept!=None:
+                        if intercept.distance<depth:
+                            hit = intercept
+                            depth = intercept.distance
         
         return hit
 
     def rtRayColor(self,intercept,rayDirection,recursion=0):
-        
+        relationx = self.envMap.get_width()/self.width
+        relationy = self.envMap.get_height()/self.height
         if intercept == None:
             if self.envMap:
                 x = (atan2(rayDirection[2],rayDirection[0])/(2*pi)+0.5)*self.envMap.get_width()
                 y = acos(rayDirection[1])/pi*self.envMap.get_height()
-                
-                envcolor = self.envMap.get_at((int(x),int(y)))
+                x = int(x)
+                y = int(y)
+                envcolor = self.envMap.get_at((x,y))
                 return [envcolor[i]/255 for i in range(3)]
             else:
                 return None
