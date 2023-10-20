@@ -57,7 +57,7 @@ class Sphere(Shape):
     
 
 class Triangle(Shape):
-    def __init__(self,material,vertices,txt):
+    def __init__(self,material,vertices,txt=None):
         self.A = vertices[0]
         self.B = vertices[1]
         self.C = vertices[2]

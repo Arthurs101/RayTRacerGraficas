@@ -26,7 +26,7 @@ raytracer.lights.append(DirectionalLight(direction=(1,-1,-1),intensity=0.4,color
 raytracer.lights.append(DirectionalLight(direction=(0,-1,0),intensity=0.4,color=(1,0,0)))
 raytracer.lights.append(PointLight(point=(0,0,-7),intensity=500,color=(0,0,1)))
 raytracer.camPosition = [0,0,3]
-hex = Obj3D('skull_low.obj',material=SAPHIRE,scale=(0.2,0.2,0.2),translate=(0,0,-10))
+hex = Obj3D('skull_low.obj',material=glass,scale=(0.2,0.2,0.2),translate=(0,0,-10))
 raytracer.scene.append(hex)
 raytracer.scene.append(Cube(position=(0,-6,-8),size=(8,4,4),material=Hard_ROCK))
 raytracer.scene.append(Cube(position=(0,-4,-10),size=(1,4,1),material=GOLD))
@@ -34,7 +34,7 @@ raytracer.scene.append(Sphere(material=earth,position=(-4,0,-7),radius=1))
 raytracer.scene.append(Sphere(material=diamond,position=(-2,4,-7),radius=1))
 raytracer.scene.append(Sphere(material=fire,position=(4,0,-7),radius=1))
 raytracer.scene.append(Sphere(material=mirror,position=(2,4,-7),radius=1))
-
+raytracer.scene.append(Triangle(material=blueMirror,vertices=[(4,4,-9),(4,-4,-9),(0,0,-10)]))
 raytracer.rtClear()
 raytracer.rtRender()
 
